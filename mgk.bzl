@@ -240,15 +240,14 @@ def define_mgk(
                 ],
                 outs = [
                     ".config",
-                ] + dtb_files,
+                ] + (dtb_files or []),
                 module_outs = common_eng_modules if build == "eng" else common_userdebug_modules if build == "userdebug" else [],
                 module_implicit_outs = common_user_modules if build == "user" else [],
                 build_config = ":{}_build_config.{}".format(name, build),
                 kconfig_ext = ":Kconfig.ext",
                 make_goals = [
                     "modules",
-                    "dtbs",
-                ],
+                ] + (["dtbs"] if dtb_files else []),
                 strip_modules = False,
                 base_kernel = select({
                     "//build/bazel_mgk_rules:kernel_version_6.1"     : "//{}-{}:kernel_aarch64_debug".format(ack_dir, "6.1"),
@@ -257,8 +256,7 @@ def define_mgk(
                     "//conditions:default"                           : None,
                 }) if build == "ack" else ":{}_kernel_aarch64.{}".format(name, build),
                 module_signing_key = "certs/mtk_signing_key.pem",
-                modules_prepare_force_generate_headers = True,
-                dtstree = "//kernel_device_modules-6.6/arch/arm64/boot/dts:mtk_dt",
+                dtstree = "//kernel_device_modules-6.6/arch/arm64/boot/dts:mtk_dt" if dtb_files else None,
                 # ABI
                 kmi_symbol_list = symbol_list,
                 trim_nonlisted_kmi = False,
@@ -268,8 +266,8 @@ def define_mgk(
             kernel_images(
                 name = "{}_kernel_images.{}".format(name, build),
                 kernel_build = ":{}.{}".format(name, build),
-                build_dtbo = True,
-                dtbo_srcs = ["//kernel_device_modules-6.6/arch/arm64/boot/dts:mtk_dtbo"],
+                build_dtbo = True if dtb_files else False,
+                dtbo_srcs = [":{}.{}/{}".format(name, build, dtb) for dtb in (dtb_files or [])],
                 dtbo_config = dtbo_config,
                 kernel_modules_install = ":kernel_modules_install",
             )
