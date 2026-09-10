@@ -107,7 +107,8 @@ def define_mgk(
         platform_device_user_modules,
         symbol_list,
         dtb_files = None,
-        dtbo_config = None):
+        dtbo_config = None,
+        clang_autofdo_profile = None):
     mgk_defconfig_overlays = []
     for o in DEFCONFIG_OVERLAYS.split(" "):
         if o != "":
@@ -201,6 +202,7 @@ def define_mgk(
             # for android common kernel tree
             kernel_build(
                 name = "{}_kernel_aarch64.{}".format(name, build),
+                clang_autofdo_profile = clang_autofdo_profile,
                 srcs = select({
                     "//build/bazel_mgk_rules:kernel_version_6.1"     : ["//{}-{}:kernel_aarch64_sources".format(ack_dir, "6.1")],
                     "//build/bazel_mgk_rules:kernel_version_6.6"     : ["//{}-{}:kernel_aarch64_sources".format(ack_dir, "6.6")],

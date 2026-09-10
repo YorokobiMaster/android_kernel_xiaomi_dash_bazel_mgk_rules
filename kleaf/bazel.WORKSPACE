@@ -37,3 +37,10 @@ new_local_repository(
     path="vendor/mediatek/kernel_modules",
     build_file = "//build/bazel_mgk_rules:kleaf/BUILD.ko"
 )
+
+# Reuse the profile checkout supplied by the LineageOS source manifest.
+new_local_repository(
+    name = "dash_kernel_profiles",
+    path = "../../../toolchain/pgo-profiles/kernel",
+    build_file_content = 'exports_files(["aarch64/android15-6.6/kernel.afdo"], visibility = ["//visibility:public"])',
+)
